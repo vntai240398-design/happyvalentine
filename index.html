@@ -20,10 +20,8 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Lớp nền lấp lánh */
         canvas { position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; }
 
-        /* Trang trí đám mây - Ẩn bớt trên điện thoại nhỏ để đỡ rối */
         .cloud {
             position: absolute; background: white; width: 100px; height: 35px;
             border-radius: 50px; opacity: 0.6; z-index: 2; animation: float 5s infinite ease-in-out;
@@ -31,7 +29,6 @@
         .cloud::after { content: ''; position: absolute; background: white; width: 45px; height: 45px; border-radius: 50%; top: -20px; left: 15px; }
         .cloud::before { content: ''; position: absolute; background: white; width: 35px; height: 35px; border-radius: 50%; top: -12px; left: 45px; }
 
-        /* Trái tim trung tâm */
         .heart-wrapper {
             position: relative; z-index: 10; text-align: center;
             cursor: pointer; transition: 0.4s; padding: 20px;
@@ -51,10 +48,8 @@
         .heart-btn::after { left: 40px; top: 0; }
 
         .instruction {
-            color: white; 
-            font-family: 'Pacifico', cursive; 
-            margin-top: 20px; 
-            font-size: 1.2rem;
+            color: white; font-family: 'Pacifico', cursive; 
+            margin-top: 20px; font-size: 1.2rem;
             text-shadow: 2px 2px rgba(0,0,0,0.2);
         }
 
@@ -66,13 +61,11 @@
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* Bức thư popup */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.75); display: none;
             justify-content: center; align-items: center; z-index: 100;
-            padding: 20px;
-            backdrop-filter: blur(8px);
+            padding: 20px; backdrop-filter: blur(8px);
         }
         .overlay.active { display: flex; }
 
@@ -81,16 +74,15 @@
             padding: 25px; border-radius: 25px; border: 6px solid white; 
             text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             transform: scale(0.8); transition: 0.5s;
-            max-height: 90vh; overflow-y: auto; /* Cuộn nếu chữ quá dài trên đt */
+            max-height: 90vh; overflow-y: auto;
         }
         .overlay.active .letter { transform: scale(1); }
 
         #typewriter {
-            font-family: 'Dancing Script', cursive; 
-            font-size: 1.4rem;
+            font-family: 'Dancing Script', cursive; font-size: 1.4rem;
             color: var(--text-color); line-height: 1.5; 
             min-height: 120px; margin: 20px 0;
-            white-space: pre-wrap; /* Giữ nguyên xuống dòng */
+            white-space: pre-wrap;
         }
 
         .close-btn {
@@ -98,9 +90,7 @@
             padding: 12px 30px; border-radius: 25px; cursor: pointer; 
             font-weight: bold; font-size: 1rem; transition: 0.3s;
         }
-        .close-btn:active { transform: scale(0.9); }
 
-        /* Media Query cho máy tính */
         @media (min-width: 768px) {
             .heart-btn { width: 120px; height: 120px; }
             .heart-btn::before, .heart-btn::after { width: 120px; height: 120px; }
@@ -113,11 +103,15 @@
 </head>
 <body>
 
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+        Trình duyệt của bạn không hỗ trợ phát nhạc.
+    </audio>
+
     <canvas id="canvas"></canvas>
 
     <div class="cloud" style="top:10%; left:5%"></div>
     <div class="cloud" style="top:15%; right:10%; animation-delay: 2s;"></div>
-    <div class="cloud" style="bottom:10%; left:15%; animation-delay: 1s;"></div>
 
     <div class="heart-wrapper" onclick="startLove()">
         <div class="heart-btn"></div>
@@ -135,6 +129,7 @@
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const music = document.getElementById('bgMusic');
         let particles = [];
 
         function resizeCanvas() {
@@ -150,10 +145,10 @@
             constructor(x, y) {
                 this.x = x; this.y = y;
                 this.size = Math.random() * 8 + 4;
-                this.speedX = (Math.random() - 0.5) * 10;
-                this.speedY = (Math.random() - 0.5) * 10;
+                this.speedX = (Math.random() - 0.5) * 12;
+                this.speedY = (Math.random() - 0.5) * 12;
                 this.opacity = 1;
-                this.color = `hsl(${Math.random() * 20 + 340}, 100%, 70%)`; // Các tông màu hồng/đỏ
+                this.color = `hsl(${Math.random() * 20 + 340}, 100%, 70%)`;
             }
             update() {
                 this.x += this.speedX; this.y += this.speedY;
@@ -179,12 +174,17 @@
         }
         animate();
 
-        let isTyping = false;
+        let isStarted = false;
         function startLove() {
-            if (isTyping) return;
+            if (isStarted) return;
+            isStarted = true;
+
+            // PHÁT NHẠC
+            music.play().catch(error => {
+                console.log("Phát nhạc thất bại (có thể do thiếu file hoặc lỗi trình duyệt):", error);
+            });
             
-            // Nổ pháo hoa tại vị trí chuột/tay chạm
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 100; i++) {
                 particles.push(new Particle(window.innerWidth / 2, window.innerHeight / 2));
             }
 
@@ -193,7 +193,6 @@
             let i = 0;
             const textElement = document.getElementById('typewriter');
             textElement.innerHTML = "";
-            isTyping = true;
 
             function type() {
                 if (i < message.length) {
@@ -207,7 +206,7 @@
 
         function closeAll() {
             document.getElementById('overlay').classList.remove('active');
-            // Thay vì reload, ta reset trạng thái để trải nghiệm mượt hơn
+            music.pause(); // Dừng nhạc khi đóng
             setTimeout(() => {
                 location.reload();
             }, 300);
